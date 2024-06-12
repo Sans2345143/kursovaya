@@ -1,11 +1,11 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.http import HttpResponse
+from django.views.generic import TemplateView
 
-
-# Простая функция для домашней страницы
 
 urlpatterns = [
+    path('main/', TemplateView.as_view(template_name='main.html'), name='main'),  # URL-шаблон для корневого пути
     path('admin/', admin.site.urls),
-    path('registration/', include('magnit.urls')),  # assuming your app is named 'your_app'
+    path('page1/', include('magnit.urls')),
+    path('page2/', include('magnit.urls')),
 ]
