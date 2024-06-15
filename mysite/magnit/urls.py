@@ -1,7 +1,8 @@
 from django.urls import path
-from . import views
+from .views import register, login_view, logout_view  # Импортируйте представления из текущего приложения
 
 urlpatterns = [
-    path('page1/', views.page1, name='page1'),
-    path('page2/', views.page2, name='page2'),
+    path('register/', register, name='register'),  # Используйте пустой путь для регистрации (необязательно)
+    path('login/', login_view, name='login'),
+    path('logout/', logout_view, name='logout'),  # Необязательный путь выхода
 ]
