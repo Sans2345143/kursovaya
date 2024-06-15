@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 from pyexpat.errors import messages
-
+from django.contrib import messages
 from .forms import RegistrationForm, LoginForm
 
 def register(request):
@@ -17,22 +17,38 @@ def register(request):
 
 def login_view(request):
     if request.method == 'POST':
-        form = LoginForm(request.POST)
-        print(request.POST)
+        form = LoginForm(request.POST)  # Create a form instance from POST data
+
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
+
+            # Authentication logic (e.g., using Django's built-in authentication)
             user = authenticate(request, username=username, password=password)
+
             if user is not None:
                 login(request, user)
-                return redirect('home')
-            if not form.is_valid():
-                messages.error(request, 'Неверный логин или пароль')  # Используйте messages.error
-    else:
-        form = LoginForm()
+                # Redirect to success page
+                return redirect('/main_view')  # Replace with your desired URL
+            else:
+                # Handle login failure
+                messages.error(request, 'Неверный логин или пароль')
+                # Return rendered template with form for another login attempt
+                return render(request, 'vhodaition.html', {'form': form})
+        else:
+            # Handle invalid form data
+            messages.error(request, 'Неверный формат данных')
 
-    return render(request, 'vhodaition.html', {'form': form})
+    else:
+        # Render login form for GET requests
+        form = LoginForm()  # Create an empty form instance for GET requests
+        context = {'form': form}  # Pass the form to the template context
+        return render(request, 'vhodaition.html', context)
+def main_view(request):
+  # Ваша логика для главной страницы, например, получение данных из моделей
+  context = {'message': 'Добро пожаловать на главную страницу!'}  # Пример данных контекста
+  return render(request, 'main.html', context)
 
 def logout_view(request):
     logout(request)
-    return redirect('main')
+    return redirect('register')
