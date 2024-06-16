@@ -1,11 +1,17 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, UserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, UserManager, AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy
+import uuid
 
-class CustomUser(AbstractBaseUser):
+
+def generate_unique_id():
+    return uuid.uuid4().hex
+
+class CustomUser(AbstractUser):
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(max_length=255, unique=True)
+    unique_id = models.CharField(max_length=255, unique=True, default=generate_unique_id)
     password = models.CharField(max_length=255)
     # Add any additional fields you need for your user
 
@@ -16,6 +22,7 @@ class CustomUser(AbstractBaseUser):
 
     def __str__(self):
         return self.username
+
 
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None):
@@ -37,4 +44,3 @@ class UserManager(BaseUserManager):
         user.is_admin = True
         user.save(using=self._db)
         return user
-

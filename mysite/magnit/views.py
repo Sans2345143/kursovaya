@@ -1,14 +1,19 @@
 from django.contrib.auth import authenticate, login, logout
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from pyexpat.errors import messages
 from django.contrib import messages
 from .forms import RegistrationForm, LoginForm
+from .models import CustomUser, generate_unique_id
+
 
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save(commit=False)  # Save user without unique_id
+            user.unique_id = generate_unique_id()
+            user.save()  # Save user with unique_id
             return redirect('login')
     else:
         form = RegistrationForm()
@@ -28,8 +33,8 @@ def login_view(request):
 
             if user is not None:
                 login(request, user)
-                # Redirect to success page
-                return redirect('/main_view')  # Replace with your desired URL
+                # Redirect to the main page
+                return redirect('main_view')  # Replace with your desired URL
             else:
                 # Handle login failure
                 messages.error(request, 'Неверный логин или пароль')
@@ -51,4 +56,15 @@ def main_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('register')
+    from django.urls import reverse
+    return HttpResponseRedirect(reverse('login'))
+
+def profile_view(request):
+    user = request.user
+    unique_id = user.unique_id
+
+    # Add this line to check the value
+    print(f"Unique ID: {unique_id}")
+
+    context = {'user': user}
+    return render(request, 'profile.html', context)
