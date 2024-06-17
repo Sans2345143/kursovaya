@@ -7,7 +7,8 @@
   </head>
 <body>
   <p>Привет, {{ user.username }}!</p>
-  
+  {% load qr_code %}
+  {% qr_from_text "Hello World!" size="T" %}
   <a href="{% url 'logout' %}" onclick="return confirm('Вы действительно хотите выйти?');">Выйти</a>
 </body>
 </html>
