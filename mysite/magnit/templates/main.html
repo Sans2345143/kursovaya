@@ -4,29 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <script src="https://ajax.googleapis.com/ajax/libs/qrcodejs/1.4.2/qrcode.min.js" defer></script>
-</head>
+  </head>
 <body>
   <p>Привет, {{ user.username }}!</p>
-
-  {% if user.unique_id %}
-    <div id="barcode-container"></div>
-  {% endif %}
-
+  
   <a href="{% url 'logout' %}" onclick="return confirm('Вы действительно хотите выйти?');">Выйти</a>
-
-  <script>
-    // QR code generation code using qrcode library
-    const barcodeContainer = document.getElementById('barcode-container');
-
-    if ('{{ user.unique_id }}') {
-      const barcodeValue = '{{ user.unique_id }}';
-      const qrcode = new QRCode(barcodeContainer, {
-        text: barcodeValue,
-        width: 200,
-        height: 200
-      });
-    }
-  </script>
 </body>
 </html>

@@ -1,10 +1,14 @@
+
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from pyexpat.errors import messages
 from django.contrib import messages
+
 from .forms import RegistrationForm, LoginForm
 from .models import CustomUser, generate_unique_id
+
+from django.http import HttpResponse
 
 
 def register(request):
