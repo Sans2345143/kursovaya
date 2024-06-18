@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>Количество заказов</th>
+            <th>Сумма продаж</th>
+        </tr>
+        {% for statistic in statistic_list %}
+            <tr>
+                <td>{{ statistic.orders_count }}</td>
+                <td>{{ statistic.sales_amount }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

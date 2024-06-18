@@ -13,5 +13,13 @@
         <img src="{{ unique_id|qr_code_filter }}" alt="QR Code">
     {% endif %}
     <a href="{% url 'logout' %}" onclick="return confirm('Вы действительно хотите выйти?');">Выйти</a>
+    
+    <!-- Отображение товаров -->
+    <h2>Товары:</h2>
+    {% include 'main/products.html' %}
+    
+    <!-- Отображение статистики -->
+    <h2>Статистика:</h2>
+    {% include 'main/statistics.html' %}
 </body>
 </html>

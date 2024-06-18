@@ -8,6 +8,7 @@ import uuid
 def generate_unique_id():
     return uuid.uuid4().hex
 
+
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(max_length=255, unique=True)
@@ -44,3 +45,16 @@ class UserManager(BaseUserManager):
         user.is_admin = True
         user.save(using=self._db)
         return user
+
+
+class Product(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    discount = models.IntegerField()
+    image = models.CharField(max_length=255)
+
+
+class Statistics(models.Model):
+    orders_count = models.IntegerField()
+    sales_amount = models.DecimalField(max_digits=10, decimal_places=2)

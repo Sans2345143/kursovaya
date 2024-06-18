@@ -1,15 +1,15 @@
 import logging
-
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RegistrationForm, LoginForm
-from .models import CustomUser, generate_unique_id
+from .models import CustomUser, generate_unique_id, Product, Statistics
 import qrcode
 import io
 import base64
 from django.http import HttpResponse
+
 
 def register(request):
     if request.method == 'POST':
@@ -61,10 +61,17 @@ def login_view(request):
 def main_view(request):
     user = request.user
     unique_id = user.unique_id if user.is_authenticated else None
+
+    # Получение данных из базы данных
+    products = Product.objects.all()[:5]  # Получаем первые 5 товаров
+    statistics = Statistics.objects.first()  # Предполагаем, что в таблице одна запись
+
     context = {
         'user': user,
         'unique_id': unique_id,
         'message': 'Добро пожаловать на главную страницу!',
+        'products': products,
+        'statistics': statistics,
     }
     return render(request, 'main.html', context)
 
@@ -84,6 +91,7 @@ def profile_view(request):
         'unique_id': unique_id,
     }
     return render(request, 'profile.html', context)
+
 
 def generate_qr_code(request, unique_id):
     try:
@@ -106,3 +114,14 @@ def generate_qr_code(request, unique_id):
     except Exception as e:
         logging.error(f"Error generating QR code: {e}")
         return HttpResponse("Internal Server Error", status=500)
+
+
+def get_products(request):
+    products = Product.objects.all()
+    return render(request, 'main/products.html', {'products': products})
+
+
+def get_stats(request):
+    stats = Statistics.objects.get(id=1)  # Assuming you have only one instance of Stats
+    return render(request, 'main/stats.html', {'statistics': stats})
+
