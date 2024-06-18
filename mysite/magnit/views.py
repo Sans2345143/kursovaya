@@ -4,7 +4,10 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RegistrationForm, LoginForm
 from .models import CustomUser, generate_unique_id
-
+import qrcode
+import io
+import base64
+from django.http import HttpResponse
 
 def register(request):
     if request.method == 'POST':
@@ -75,4 +78,24 @@ def profile_view(request):
     context = {'user': user}
     return render(request, 'profile.html', context)
 
-from django.http import HttpResponse
+def generate_qr_code(request, unique_id):
+    # Generate the QR code image using the unique_id
+    qr = qrcode.QRCode(
+        version=1,  # Adjust version as needed
+        error_correction=qrcode.constants.ERROR_CORRECT_L,  # Choose error correction level
+        box_size=10,  # Adjust box size for image resolution
+        border=4,  # Adjust border width
+    )
+    qr.add_data(unique_id)  # Add unique_id data
+    qr.make(fit=True)  # Generate QR code matrix
+    img = qr.make_image(fill_color='black', back_color='white')  # Create the image
+
+    # Convert the image to a base64 encoded string
+    img_buffer = io.BytesIO()
+    img.save(img_buffer, format='PNG')
+    base64_img_data = base64.b64encode(img_buffer.getvalue()).decode('utf-8')
+
+    # Return an HTTP response with the base64 encoded image data
+    response = HttpResponse(content_type='image/png')
+    response.write(base64_img_data)
+    return response
