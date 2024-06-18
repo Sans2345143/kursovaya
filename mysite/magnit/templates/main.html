@@ -1,3 +1,5 @@
+{% load qr_code_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +10,7 @@
 <body>
     <p>Привет, {{ user.username }}!</p>
     {% if unique_id %}
-      <img src="{% url 'generate_qr_code' unique_id %}" alt="QR Code">
+        <img src="{{ unique_id|qr_code_filter }}" alt="QR Code">
     {% endif %}
     <a href="{% url 'logout' %}" onclick="return confirm('Вы действительно хотите выйти?');">Выйти</a>
 </body>

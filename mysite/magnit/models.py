@@ -11,7 +11,7 @@ def generate_unique_id():
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(max_length=255, unique=True)
-    unique_id = models.CharField(max_length=255, unique=True, default=generate_unique_id)
+    unique_id = models.CharField(max_length=100, unique=True, blank=True, null=True)
     password = models.CharField(max_length=255)
     # Add any additional fields you need for your user
 

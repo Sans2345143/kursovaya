@@ -7,8 +7,7 @@ register = template.Library()
 
 @register.filter(name='qr_code_filter')
 def qr_code_filter(unique_id):
-    img_data = io.BytesIO()
-    generate_qr_code_from_unique_id(unique_id)
+    img_data = generate_qr_code_from_unique_id(unique_id)
     img_data.seek(0)
     qr_code_base64 = base64.b64encode(img_data.read()).decode('utf-8')
     return f'data:image/png;base64,{qr_code_base64}'
@@ -27,5 +26,7 @@ def generate_qr_code_from_unique_id(unique_id):
     img = qr.make_image(fill_color='black', back_color='white')  # Create the image
 
     # Write the image data to the BytesIO object
-    img_data.seek(0)  # Ensure buffer is at the beginning
+    img_data = io.BytesIO()  # Create BytesIO object inside the function
     img.save(img_data, format='PNG')  # Save image to buffer
+    img_data.seek(0)  # Ensure buffer is at the beginning
+    return img_data

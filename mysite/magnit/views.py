@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render, redirect
@@ -57,8 +59,13 @@ def login_view(request):
 
 
 def main_view(request):
-    #  Your logic for the main page, e.g., get data from models
-    context = {'message': 'Добро пожаловать на главную страницу!'}  # Example context data
+    user = request.user
+    unique_id = user.unique_id if user.is_authenticated else None
+    context = {
+        'user': user,
+        'unique_id': unique_id,
+        'message': 'Добро пожаловать на главную страницу!',
+    }
     return render(request, 'main.html', context)
 
 
@@ -72,31 +79,30 @@ def profile_view(request):
     user = request.user
     unique_id = user.unique_id
 
-    # Add this line to check the value
-    print(f"Unique ID: {unique_id}")
-
-    context = {'user': user}
+    context = {
+        'user': user,
+        'unique_id': unique_id,
+    }
     return render(request, 'profile.html', context)
 
 def generate_qr_code(request, unique_id):
-    # Generate the QR code image using the unique_id
-    qr = qrcode.QRCode(
-        version=1,  # Adjust version as needed
-        error_correction=qrcode.constants.ERROR_CORRECT_L,  # Choose error correction level
-        box_size=10,  # Adjust box size for image resolution
-        border=4,  # Adjust border width
-    )
-    qr.add_data(unique_id)  # Add unique_id data
-    qr.make(fit=True)  # Generate QR code matrix
-    img = qr.make_image(fill_color='black', back_color='white')  # Create the image
+    try:
+        qr = qrcode.QRCode(
+            version=1,  # Adjust version as needed
+            error_correction=qrcode.constants.ERROR_CORRECT_L,  # Choose error correction level
+            box_size=10,  # Adjust box size for image resolution
+            border=4,  # Adjust border width
+        )
+        qr.add_data(unique_id)  # Add unique_id data
+        qr.make(fit=True)  # Generate QR code matrix
+        img = qr.make_image(fill_color='black', back_color='white')  # Create the image
 
-    # Convert the image to a base64 encoded string
-    img_buffer = io.BytesIO()
-    img.save(img_buffer, format='PNG')
-    base64_img_data = base64.b64encode(img_buffer.getvalue()).decode('utf-8')
+        # Convert the image to a BytesIO object
+        img_buffer = io.BytesIO()
+        img.save(img_buffer, format='PNG')
+        img_buffer.seek(0)  # Ensure buffer is at the beginning
 
-    # Return an HTTP response with the base64 encoded image data
-    response = HttpResponse(content_type='image/png')
-    response.write(base64_img_data)
-    return response
-
+        return HttpResponse(img_buffer, content_type='image/png')
+    except Exception as e:
+        logging.error(f"Error generating QR code: {e}")
+        return HttpResponse("Internal Server Error", status=500)
