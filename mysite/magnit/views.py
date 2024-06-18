@@ -99,3 +99,4 @@ def generate_qr_code(request, unique_id):
     response = HttpResponse(content_type='image/png')
     response.write(base64_img_data)
     return response
+
