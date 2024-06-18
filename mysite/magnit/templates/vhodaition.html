@@ -24,7 +24,7 @@
         <div class="modal-body p-5 pt-0">
           <form class="" method="post">
             {% csrf_token %}
-            {{ form }}
+            {{ form.as_p }}
             <button class="w-100 mb-2 btn btn-lg rounded-3 btn-danger" type="submit">Вход</button>
             <small class="text-body-secondary">Ещё не зарегистрированы? <a href="{% url 'register' %}">Регистрация</a></small>
           </form>

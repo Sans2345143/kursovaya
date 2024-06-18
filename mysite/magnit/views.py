@@ -1,14 +1,9 @@
-
 from django.contrib.auth import authenticate, login, logout
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render, redirect
-from pyexpat.errors import messages
 from django.contrib import messages
-
 from .forms import RegistrationForm, LoginForm
 from .models import CustomUser, generate_unique_id
-
-from django.http import HttpResponse
 
 
 def register(request):
@@ -22,7 +17,9 @@ def register(request):
     else:
         form = RegistrationForm()
 
-    return render(request, 'registration1.html', {'form': form})
+    context = {'form': form}
+    return render(request, 'registration1.html', context)
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -43,7 +40,8 @@ def login_view(request):
                 # Handle login failure
                 messages.error(request, 'Неверный логин или пароль')
                 # Return rendered template with form for another login attempt
-                return render(request, 'vhodaition.html', {'form': form})
+                context = {'form': form}  # Create and use context
+                return render(request, 'vhodaition.html', context)
         else:
             # Handle invalid form data
             messages.error(request, 'Неверный формат данных')
@@ -51,17 +49,21 @@ def login_view(request):
     else:
         # Render login form for GET requests
         form = LoginForm()  # Create an empty form instance for GET requests
-        context = {'form': form}  # Pass the form to the template context
+        context = {'form': form}  # Create and use context
         return render(request, 'vhodaition.html', context)
+
+
 def main_view(request):
-  # Ваша логика для главной страницы, например, получение данных из моделей
-  context = {'message': 'Добро пожаловать на главную страницу!'}  # Пример данных контекста
-  return render(request, 'main.html', context)
+    #  Your logic for the main page, e.g., get data from models
+    context = {'message': 'Добро пожаловать на главную страницу!'}  # Example context data
+    return render(request, 'main.html', context)
+
 
 def logout_view(request):
     logout(request)
     from django.urls import reverse
     return HttpResponseRedirect(reverse('login'))
+
 
 def profile_view(request):
     user = request.user
@@ -72,3 +74,5 @@ def profile_view(request):
 
     context = {'user': user}
     return render(request, 'profile.html', context)
+
+from django.http import HttpResponse

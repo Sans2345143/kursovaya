@@ -1,5 +1,5 @@
-from django.urls import path
-from .views import register, login_view, logout_view, main_view
+from .views import register, login_view, logout_view, main_view # Import all view functions
+from django.urls import path, include
 
 urlpatterns = [
     path('register/', register, name='register'),
