@@ -6,12 +6,18 @@
     <title>Document</title>
 </head>
 <body>
-    {% if statistics %}
-    <p>Количество заказов: {{ statistics.orders_count }}</p>
-    <p>Общая сумма продаж: {{ statistics.sales_amount }} руб.</p>
-{% else %}
-    <p>Статистика не найдена.</p>
-{% endif %}
-
+    <ul>
+        {% for product in products %}
+            <li>
+                <h3>{{ product.title }}</h3>
+                <p>{{ product.description }}</p>
+                <p>Цена: {{ product.price }} руб.</p>
+                <p>Скидка: {{ product.discount }}%</p>
+                <img src="{{ product.image }}" alt="{{ product.title }}">
+            </li>
+        {% empty %}
+            <li>Нет доступных продуктов.</li>
+        {% endfor %}
+    </ul>
 </body>
 </html>

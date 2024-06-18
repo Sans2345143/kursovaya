@@ -59,19 +59,14 @@ def login_view(request):
 
 
 def main_view(request):
-    user = request.user
-    unique_id = user.unique_id if user.is_authenticated else None
-
-    # Получение данных из базы данных
-    products = Product.objects.all()[:5]  # Получаем первые 5 товаров
-    statistics = Statistics.objects.first()  # Предполагаем, что в таблице одна запись
+    products = Product.objects.all()
+    stats = Statistics.objects.first()  # Assuming you have only one instance
 
     context = {
-        'user': user,
-        'unique_id': unique_id,
-        'message': 'Добро пожаловать на главную страницу!',
+        'user': request.user,  # Assuming you want to pass the logged-in user to the template
         'products': products,
-        'statistics': statistics,
+        'stats': stats,
+        'message': 'Добро пожаловать на главную страницу!',
     }
     return render(request, 'main.html', context)
 
@@ -109,6 +104,11 @@ def generate_qr_code(request, unique_id):
         img_buffer = io.BytesIO()
         img.save(img_buffer, format='PNG')
         img_buffer.seek(0)  # Ensure buffer is at the beginning
+
+        return HttpResponse(img_buffer, content_type='image/png')
+    except Exception as e:
+        # Handle errors appropriately
+        return HttpResponse("Internal Server Error", status=500)
 
         return HttpResponse(img_buffer, content_type='image/png')
     except Exception as e:

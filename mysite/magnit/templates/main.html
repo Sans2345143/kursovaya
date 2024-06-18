@@ -1,25 +1,45 @@
-{% load qr_code_tags %}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Main Page</title>
 </head>
 <body>
     <p>Привет, {{ user.username }}!</p>
+
     {% if unique_id %}
-        <img src="{{ unique_id|qr_code_filter }}" alt="QR Code">
+        <img src="{% url 'generate_qr_code' unique_id %}" alt="QR Code">
     {% endif %}
+
+    {% if products %}
+        <h2>Товары:</h2>
+        <ul>
+            {% for product in products %}
+                <li>
+                    <h3>{{ product.title }}</h3>
+                    <p>{{ product.description }}</p>
+                    <p>Цена: {{ product.price }}</p>
+                    <p>Скидка: {{ product.discount }}%</p>
+                    <!-- Adjust image display based on your setup -->
+                    <img src="{% static product.image %}" alt="{{ product.title }}">
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Нет товаров для отображения.</p>
+    {% endif %}
+
+    {% if stats %}
+        <h2>Статистика:</h2>
+        <p>Количество заказов: {{ stats.orders_count }}</p>
+        <p>Сумма продаж: {{ stats.sales_amount }}</p>
+    {% else %}
+        <p>Нет статистики для отображения.</p>
+    {% endif %}
+
     <a href="{% url 'logout' %}" onclick="return confirm('Вы действительно хотите выйти?');">Выйти</a>
-    
-    <!-- Отображение товаров -->
-    <h2>Товары:</h2>
-    {% include 'main/products.html' %}
-    
-    <!-- Отображение статистики -->
-    <h2>Статистика:</h2>
-    {% include 'main/statistics.html' %}
 </body>
 </html>

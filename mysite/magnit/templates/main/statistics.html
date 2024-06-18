@@ -6,17 +6,11 @@
     <title>Document</title>
 </head>
 <body>
-    <table>
-        <tr>
-            <th>Количество заказов</th>
-            <th>Сумма продаж</th>
-        </tr>
-        {% for statistic in statistic_list %}
-            <tr>
-                <td>{{ statistic.orders_count }}</td>
-                <td>{{ statistic.sales_amount }}</td>
-            </tr>
-        {% endfor %}
-    </table>
+    {% if statistics %}
+    <p>Количество заказов: {{ statistics.orders_count }}</p>
+    <p>Общая сумма продаж: {{ statistics.sales_amount }} руб.</p>
+{% else %}
+    <p>Статистика не найдена.</p>
+{% endif %}
 </body>
 </html>
