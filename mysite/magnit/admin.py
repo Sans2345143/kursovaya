@@ -5,3 +5,4 @@ admin.site.register(Product)
 admin.site.register(LoyaltyLevel)
 admin.site.register(LoyaltyPoints)
 admin.site.register(PurchaseHistory)
+
