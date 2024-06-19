@@ -1,15 +1,24 @@
 import logging
+from django.contrib.auth.decorators import login_required
+from .models import Product, LoyaltyPoints, PurchaseHistory
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import RegistrationForm, LoginForm
-from .models import CustomUser, generate_unique_id, Product, Statistics
+from .models import CustomUser, generate_unique_id
 import qrcode
 import io
 import base64
 from django.http import HttpResponse
 
+
+def index(request):
+    # This function will be called when http://127.0.0.1:8000/ is requested
+    context = {
+        # Add any variables you want to pass to the template here
+    }
+    return render(request, 'index.html', context)
 
 def register(request):
     if request.method == 'POST':
@@ -59,15 +68,27 @@ def login_view(request):
 
 
 def main_view(request):
-    products = Product.objects.all()
-    stats = Statistics.objects.first()  # Assuming you have only one instance
+    user = request.user
+
+    # Filter promotions based on 'is_promotion' field
+    promotions = Product.objects.filter(is_promotion=True)
+
+    # Filter special offers based on 'special_offer' field
+    special_offers = Product.objects.filter(special_offer=True)
+
+    purchase_history = PurchaseHistory.objects.filter(user=user)
+    loyalty_points = user.loyalty_points if user.is_authenticated else None
+    unique_id = user.unique_id if user.is_authenticated else None
 
     context = {
-        'user': request.user,  # Assuming you want to pass the logged-in user to the template
-        'products': products,
-        'stats': stats,
-        'message': 'Добро пожаловать на главную страницу!',
+        'user': user,
+        'promotions': promotions,
+        'special_offers': special_offers,
+        'purchase_history': purchase_history,
+        'loyalty_points': loyalty_points,
+        'unique_id': unique_id,
     }
+
     return render(request, 'main.html', context)
 
 
@@ -107,21 +128,5 @@ def generate_qr_code(request, unique_id):
 
         return HttpResponse(img_buffer, content_type='image/png')
     except Exception as e:
-        # Handle errors appropriately
-        return HttpResponse("Internal Server Error", status=500)
-
-        return HttpResponse(img_buffer, content_type='image/png')
-    except Exception as e:
         logging.error(f"Error generating QR code: {e}")
         return HttpResponse("Internal Server Error", status=500)
-
-
-def get_products(request):
-    products = Product.objects.all()
-    return render(request, 'main/products.html', {'products': products})
-
-
-def get_stats(request):
-    stats = Statistics.objects.get(id=1)  # Assuming you have only one instance of Stats
-    return render(request, 'main/stats.html', {'statistics': stats})
-

@@ -53,6 +53,7 @@ ALLOWED_HOSTS = []
 
 
 INSTALLED_APPS = [
+    'django_extensions',
     'qr_code',
     'django.contrib.admin',
     'django.contrib.auth',
