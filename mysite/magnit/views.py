@@ -139,16 +139,15 @@ def generate_qr_code(request, unique_id):
         return HttpResponse("Internal Server Error", status=500)
 
 
+@login_required
 def purchase_view(request):
     if request.method == 'POST':
         form = PurchaseForm(request.POST)
-        if request.method == 'POST':
-            form = PurchaseForm(request.POST)
-            if form.is_valid():
-                purchase = form.save(commit=False)
-                purchase.user = request.user  # Assign the current user to the purchase instance
-                purchase.save()
-                return redirect('purchase_confirmation')
+        if form.is_valid():
+            purchase = form.save(commit=False)
+            purchase.user = request.user  # Assign the current user to the purchase instance
+            purchase.save()
+            return redirect('purchase_confirmation')
     else:
         form = PurchaseForm()
 

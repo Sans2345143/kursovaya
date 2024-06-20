@@ -8,16 +8,23 @@ from magnit.models import Product, Purchase
 class PurchaseForm(forms.ModelForm):
     class Meta:
         model = Purchase
-        fields = '__all__'
+        fields = ['product', 'quantity']  # Remove 'price' from fields
 
-    def save(self, commit=True):
-        # Call the original save() method with commit=False
-        instance = super().save(commit=False)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['product'].widget.attrs['readonly'] = True  # Make product field readonly
+        self.fields['product'].queryset = Product.objects.all()  # Optionally filter queryset if needed
 
-        if commit:
-            instance.save()
+    def clean(self):
+        cleaned_data = super().clean()
+        product = cleaned_data.get('product')
+        quantity = cleaned_data.get('quantity')
 
-        return instance
+        if product and quantity:
+            # Calculate price dynamically
+            cleaned_data['price'] = product.price * quantity
+
+        return cleaned_data
 
 
 class RegistrationForm(UserCreationForm):
