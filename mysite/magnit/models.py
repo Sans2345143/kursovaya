@@ -12,7 +12,7 @@ def generate_unique_id():
 
 
 class CustomUser(AbstractUser):
-    loyalty_points = models.IntegerField(default=0)
+    loyalty_point = models.IntegerField(default=0)
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(max_length=255, unique=True)
     unique_id = models.CharField(max_length=100, unique=True, blank=True, null=True, default=generate_unique_id)
@@ -53,24 +53,34 @@ class UserManager(BaseUserManager):
 class Product(models.Model):
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    description = models.TextField(null=True, blank=True)
-    is_promotion = models.BooleanField(default=False)
-    special_offer = models.BooleanField(default=False)
+    promotions = models.BooleanField(default=False)
+    special_offers = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+class Purchase(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.product} - {self.date}"
+
+class LoyaltyPoint(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    points = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.user} - {self.points}"
+class LoyaltyLevel(models.Model):
+    name = models.CharField(max_length=50)
+    point_percentage = models.IntegerField()  # percentage of purchase price given as points
+
 
 class PurchaseHistory(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     purchase_date = models.DateTimeField(auto_now_add=True)
-
-
-class LoyaltyLevel(models.Model):
-    name = models.CharField(max_length=255)
-    required_points = models.IntegerField()
-
-    def __str__(self):
-        return self.name
-
-
-class LoyaltyPoints(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    points = models.IntegerField(default=0)

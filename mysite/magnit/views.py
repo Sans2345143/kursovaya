@@ -1,11 +1,11 @@
 import logging
 from django.contrib.auth.decorators import login_required
-from .models import Product, LoyaltyPoints, PurchaseHistory
+from .models import Product, LoyaltyPoint, PurchaseHistory, LoyaltyLevel
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import RegistrationForm, LoginForm
+from .forms import RegistrationForm, LoginForm, PurchaseForm
 from .models import CustomUser, generate_unique_id
 import qrcode
 import io
@@ -81,21 +81,18 @@ def main_view(request):
     user = request.user
 
     # Filter promotions based on 'is_promotion' field
-    promotions = Product.objects.filter(is_promotion=True)
+    promotions = Product.objects.filter(promotions=True)
 
     # Filter special offers based on 'special_offer' field
-    special_offers = Product.objects.filter(special_offer=True)
+    special_offers = Product.objects.filter(special_offers=True)
 
-    purchase_history = PurchaseHistory.objects.filter(user=user)
-    loyalty_points = user.loyalty_points if user.is_authenticated else None
+
     unique_id = user.unique_id if user.is_authenticated else None
 
     context = {
         'user': user,
         'promotions': promotions,
         'special_offers': special_offers,
-        'purchase_history': purchase_history,
-        'loyalty_points': loyalty_points,
         'unique_id': unique_id,
     }
 
@@ -140,3 +137,45 @@ def generate_qr_code(request, unique_id):
     except Exception as e:
         logging.error(f"Error generating QR code: {e}")
         return HttpResponse("Internal Server Error", status=500)
+
+
+def purchase_view(request):
+    if request.method == 'POST':
+        form = PurchaseForm(request.POST)
+        if request.method == 'POST':
+            form = PurchaseForm(request.POST)
+            if form.is_valid():
+                purchase = form.save(commit=False)
+                purchase.user = request.user  # Assign the current user to the purchase instance
+                purchase.save()
+                return redirect('purchase_confirmation')
+    else:
+        form = PurchaseForm()
+
+    return render(request, 'purchase.html', {'form': form})
+
+
+@login_required
+def purchase_confirmation(request):
+    return render(request, 'purchase_confirmation.html')
+
+
+def calculate_loyalty_points(user, purchases):
+    total_spent = sum(purchase.product.price for purchase in purchases)
+    loyalty_point, created = LoyaltyPoint.objects.get_or_create(user=user)
+    current_level = loyalty_point.get_loyalty_level()
+
+    if current_level:
+        points_earned = (total_spent * current_level.point_percentage) // 100
+    else:
+        points_earned = 0  # or some default percentage if no levels exist
+
+    loyalty_point.points += points_earned
+    loyalty_point.save()
+
+
+@login_required
+def loyalty_view(request):
+    loyalty_point, created = LoyaltyPoint.objects.get_or_create(user=request.user)
+    current_level = loyalty_point
+    return render(request, 'loyalty.html', {'points': loyalty_point.points})
