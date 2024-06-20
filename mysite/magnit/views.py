@@ -67,6 +67,16 @@ def login_view(request):
         return render(request, 'vhodaition.html', context)
 
 
+def history_view(request):
+    user = request.user
+    purchase_history = PurchaseHistory.objects.filter(user=user)
+    context = {
+        'user': user,
+        'purchase_history': purchase_history,}
+
+    return render(request, 'history.html', {'purchase_history': purchase_history})
+
+
 def main_view(request):
     user = request.user
 
